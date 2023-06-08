@@ -1,0 +1,41 @@
+name: PR
+on: pull_request
+
+# Using 16MB stacks for deep test/debug recursion
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  RUST_MIN_STACK: 16777216
+
+jobs:
+
+  check:
+    name: Check (1.59.0)
+    runs-on: ubuntu-latest
+    env:
+      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: git
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@1.59.0
+      - run: cp ci/compat-Cargo.lock ./Cargo.lock
+      - run: cargo check --verbose --locked
+
+  test:
+    name: Test (stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --verbose
+      - run: cargo test --verbose --package rayon
+      - run: cargo test --verbose --package rayon-core
+      - run: ./ci/highlander.sh
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@1.67.1
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check

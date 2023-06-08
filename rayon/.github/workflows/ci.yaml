@@ -1,0 +1,100 @@
+name: CI
+on:
+  push:
+    branches:
+      - staging
+      - trying
+
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+jobs:
+
+  check:
+    name: Check (1.59.0)
+    runs-on: ubuntu-latest
+    env:
+      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: git
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@1.59.0
+      - run: cp ci/compat-Cargo.lock ./Cargo.lock
+      - run: cargo check --verbose --locked
+
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable, beta, nightly]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - run: cargo build --verbose
+      - run: cargo test --verbose --package rayon
+      - run: cargo test --verbose --package rayon-core
+      - run: ./ci/highlander.sh
+
+  # rayon-demo has huge dependencies, so limit its testing.
+  # build on stable, test on nightly (because of #[bench])
+  demo:
+    name: Demo
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, nightly]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - run: cargo build --verbose --package rayon-demo
+      - run: cargo test --verbose --package rayon-demo
+        if: matrix.rust == 'nightly'
+
+  i686:
+    name: Test (ubuntu-latest, stable-i686)
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo apt-get update
+          sudo apt-get install gcc-multilib
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable-i686-unknown-linux-gnu
+      - run: cargo build --verbose
+      - run: cargo test --verbose --package rayon
+      - run: cargo test --verbose --package rayon-core
+
+  # wasm32-unknown-unknown builds, and even has the runtime fallback for
+  # unsupported threading, but we don't have an environment to execute in.
+  # wasm32-wasi can test the fallback by running in wasmtime.
+  wasm:
+    name: WebAssembly
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_WASM32_WASI_RUNNER: /home/runner/.wasmtime/bin/wasmtime
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,wasm32-wasi
+      - run: cargo check --verbose --target wasm32-unknown-unknown
+      - run: cargo check --verbose --target wasm32-wasi
+      - run: curl https://wasmtime.dev/install.sh -sSf | bash
+      - run: cargo test --verbose --target wasm32-wasi --package rayon
+      - run: cargo test --verbose --target wasm32-wasi --package rayon-core
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@1.67.1
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check

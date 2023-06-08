@@ -1,0 +1,32 @@
+[package]
+rust-version = "1.59"
+edition = "2021"
+name = "rayon-demo"
+version = "0.0.0"
+authors = ["Niko Matsakis <niko@alum.mit.edu>"]
+publish = false
+
+[dependencies]
+rayon = { path = "../" }
+cgmath = "0.18"
+docopt = "1"
+fixedbitset = "0.4"
+glium = "0.32"
+once_cell = "1.17.1"
+rand = "0.8"
+rand_xorshift = "0.3"
+regex = "1"
+
+[dependencies.serde]
+version = "1.0.85"
+features = ["derive"]
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["processthreadsapi"] }
+
+[dev-dependencies]
+doc-comment = "0.3"
+num = "0.4"

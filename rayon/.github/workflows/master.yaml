@@ -1,0 +1,27 @@
+name: master
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * 0' # 00:00 Sunday
+
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+jobs:
+
+  test:
+    name: Test (stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - run: cargo build --verbose
+      - run: cargo test --verbose --package rayon
+      - run: cargo test --verbose --package rayon-core
+      - run: ./ci/highlander.sh

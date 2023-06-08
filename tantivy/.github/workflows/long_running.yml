@@ -1,0 +1,28 @@
+name: Long running tests
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+  NUM_FUNCTIONAL_TEST_ITERATIONS: 20000
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install stable
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+    - name: Run indexing_unsorted
+      run: cargo test indexing_unsorted -- --ignored
+    - name: Run indexing_sorted
+      run: cargo test indexing_sorted -- --ignored
