@@ -5,6 +5,7 @@ Most of them are third-party crates adapted to SGX. More crates are expected to 
 
 Below list the crates:
 
+- [csv](https://github.com/BurntSushi/rust-csv/tree/574ae1ff64693b42ae0ce153926d9a0a5d546936)
 - gbdt
 - [getrandom](https://github.com/rust-random/getrandom/tree/0830ba66be8a5c019fc5ced5747c9d0a023e4d3e)
 - [image](https://github.com/image-rs/image/tree/2a79d33e663d27e402c76bfc6aa5ca78b1cc9895)
