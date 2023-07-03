@@ -9,13 +9,29 @@
 //! Implementation for SGX using RDRAND instruction
 extern crate sgx_trts;
 
-use crate::Error;
+use sgx_trts::rand::rand;
 
-pub fn getrandom_inner(dest: &mut [u8]) -> Result<(), Error> {
-    // sgx_read_rand cannot take len=0, but this function does
-    if dest.is_empty() {
-        return Ok(());
+use core::mem::MaybeUninit;
+
+use crate::{util::slice_as_uninit, Error};
+
+// Vec can not be used under no-std, so we generate the random numbers by chunks
+pub fn getrandom_inner(dest: &mut [MaybeUninit<u8>]) -> Result<(), Error> {
+    const WINDOW_SIZE: usize = 8;
+    let mut buf = [0; WINDOW_SIZE];
+
+    let mut chunks = dest.chunks_exact_mut(WINDOW_SIZE);
+    for chunk in chunks.by_ref() {
+        rand(&mut buf).or(Err(Error::UNSUPPORTED))?;
+        chunk.copy_from_slice(slice_as_uninit(&buf));
     }
 
-    sgx_trts::rand::rand(dest).or(Err(Error::UNSUPPORTED))
+    let tail = chunks.into_remainder();
+    let n = tail.len();
+    if n > 0 {
+        rand(&mut buf).or(Err(Error::UNSUPPORTED))?;
+        tail.copy_from_slice(slice_as_uninit(&buf[..n]));
+    }
+
+    Ok(())
 }

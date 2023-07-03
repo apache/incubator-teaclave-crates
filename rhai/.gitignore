@@ -1,0 +1,14 @@
+target/
+Cargo.lock
+.vscode/
+.cargo/
+benches/results
+clippy.toml
+Rhai.toml
+**/*.bat
+**/*.exe
+doc/rhai-sync.json
+doc/rhai.json
+.idea/
+.idea
+.idea/*

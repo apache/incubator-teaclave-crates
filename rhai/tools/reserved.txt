@@ -1,0 +1,108 @@
+// This file holds a list of reserved symbols for the Rhai language.
+//
+// The mapped attributes are:
+// - is this a reserved symbol? (bool)
+// - can this keyword be called normally as a function? (bool)
+// - can this keyword be called in method-call style? (bool)
+//
+// Generate the output table via:
+// ```bash
+// gperf reserved.txt
+// ```
+//
+// Since GNU gperf does not produce Rust output, the ANSI-C output must be hand-edited and
+// manually spliced into `tokenizer.rs`.
+//
+// This includes:
+// * Rewrite the C hashing program (especially since it uses a `switch` statement with fall-through)
+//   into equivalent Rust as the function `is_reserved_keyword_or_symbol`.
+// * Update the values for the `???_RESERVED_???` constants.
+// * Copy the `asso_values` array into `RESERVED_ASSOC_VALUES`.
+// * Copy the `wordlist` array into `RESERVED_LIST` with the following modifications:
+//   - Remove the `#line` comments
+//   - Change the entry wrapping `{ .. }` into tuples `( .. )`
+//   - Feature flags can be incorporated directly into the output via the `cfg!` macro
+//
+%global-table
+%struct-type
+%omit-struct-type
+%define initializer-suffix ,false,false,false
+struct reserved;
+%%
+# reserved under certain flags
+#
+?.,             cfg!(feature = no_object), false, false
+?[,             cfg!(feature = no_index), false, false
+fn,             cfg!(feature = no_function), false, false
+private,        cfg!(feature = no_function), false, false
+import,         cfg!(feature = no_module), false, false
+export,         cfg!(feature = no_module), false, false
+as,             cfg!(feature = no_module), false, false
+#   
+# reserved symbols
+#   
+===,            true, false, false
+!==,            true, false, false
+->,             true, false, false
+<-,             true, false, false
+?,              true, false, false
+:=,             true, false, false
+:;,             true, false, false
+~,              true, false, false
+!.,             true, false, false
+::<,            true, false, false
+(*,             true, false, false
+*),             true, false, false
+"#",            true, false, false
+"#!",           true, false, false
+@,              true, false, false
+$,              true, false, false
+++,             true, false, false
+--,             true, false, false
+...,            true, false, false
+<|,             true, false, false
+|>,             true, false, false
+#   
+# reserved keywords
+#   
+public,         true, false, false
+protected,      true, false, false
+super,          true, false, false
+new,            true, false, false
+use,            true, false, false
+module,         true, false, false
+package,        true, false, false
+var,            true, false, false
+static,         true, false, false
+shared,         true, false, false
+with,           true, false, false
+is,             true, false, false
+goto,           true, false, false
+exit,           true, false, false
+match,          true, false, false
+case,           true, false, false
+default,        true, false, false
+void,           true, false, false
+null,           true, false, false
+nil,            true, false, false
+spawn,          true, false, false
+thread,         true, false, false
+go,             true, false, false
+sync,           true, false, false
+async,          true, false, false
+await,          true, false, false
+yield,          true, false, false
+#   
+# keyword functions
+#   
+print,          true, true, false
+debug,          true, true, false
+type_of,        true, true, true
+eval,           true, true, false
+Fn,             true, true, false
+call,           true, true, true
+curry,          true, true, true
+this,           true, false, false
+is_def_var,     true, true, false
+is_def_fn,      cfg!(not(feature = no_function)), true, false
+is_shared,      cfg!(not(feature = no_closure)), true, true

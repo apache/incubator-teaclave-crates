@@ -1,0 +1,25 @@
+name: Manual CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      depth:
+        description: "Specify a max number of simultaneous feature flags"
+        required: true
+        type: string
+        default: "2"
+
+jobs:
+  feature_powerset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack@0.5.25
+      - run: cargo hack check --feature-powerset --depth ${{ inputs.depth }} --no-dev-deps --exclude-features "$FEATURE_EXCLUDE"
+        env:
+          FEATURE_EXCLUDE: "no_std stdweb wasm-bindgen f32_float only_i32 unicode-xid-ident bin-features"
