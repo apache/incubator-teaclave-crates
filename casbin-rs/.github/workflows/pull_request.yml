@@ -1,0 +1,31 @@
+on:
+  pull_request_target:
+    branches: [ master ]
+name: Benchmarks
+jobs:
+  runBenchmark:
+    name: run benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - name: Cache cargo
+        uses: actions/cache@v2.1.4
+        with:
+          path: |
+            target
+            ~/.cargo/git
+            ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: smrpn/criterion-compare-action@move_to_actions 
+        with:
+          cwd: benches
+          token: ${{ secrets.GITHUB_TOKEN }}
+

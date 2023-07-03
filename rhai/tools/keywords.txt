@@ -1,0 +1,105 @@
+// This file holds a list of keywords/symbols for the Rhai language, with mapping to
+// an appropriate `Token` variant.
+//
+// Generate the output table via:
+// ```bash
+// gperf keywords.txt
+// ```
+//
+// Since GNU gperf does not produce Rust output, the ANSI-C output must be hand-edited and
+// manually spliced into `tokenizer.rs`.
+//
+// This includes:
+// * Rewrite the C hashing program (especially since it uses a `switch` statement with fall-through)
+//   into equivalent Rust as the function `lookup_symbol_from_syntax`.
+// * Update the values for the `???_KEYWORD_???` constants.
+// * Copy the `asso_values` array into `KEYWORD_ASSOC_VALUES`.
+// * Copy the `wordlist` array into `KEYWORDS_LIST` with the following modifications:
+//   - Remove the `#line` comments
+//   - Change the entry wrapping `{ .. }` into tuples `( .. )`
+//   - Put feature flags on the appropriate lines, and duplicating lines that maps to `Token::EOF`
+//     for the opposite feature flags
+//
+%global-table
+%struct-type
+%omit-struct-type
+%define initializer-suffix ,Token::EOF
+struct keyword;
+%%
+{,          Token::LeftBrace
+},          Token::RightBrace
+(,          Token::LeftParen
+),          Token::RightParen
+[,          Token::LeftBracket
+],          Token::RightBracket
+(),         Token::Unit
++,          Token::Plus
+-,          Token::Minus
+*,          Token::Multiply
+/,          Token::Divide
+;,          Token::SemiColon
+:,          Token::Colon
+::,         Token::DoubleColon
+=>,         Token::DoubleArrow
+_,          Token::Underscore
+",",        Token::Comma
+.,          Token::Period
+?.,         Token::Elvis
+??,         Token::DoubleQuestion
+?[,         Token::QuestionBracket
+..,         Token::ExclusiveRange
+..=,        Token::InclusiveRange
+"#{",       Token::MapStart
+=,          Token::Equals
+true,       Token::True
+false,      Token::False
+let,        Token::Let
+const,      Token::Const
+if,         Token::If
+else,       Token::Else
+switch,     Token::Switch
+do,         Token::Do
+while,      Token::While
+until,      Token::Until
+loop,       Token::Loop
+for,        Token::For
+in,         Token::In
+!in,        Token::NotIn
+<,          Token::LessThan
+>,          Token::GreaterThan
+<=,         Token::LessThanEqualsTo
+>=,         Token::GreaterThanEqualsTo
+==,         Token::EqualsTo
+!=,         Token::NotEqualsTo
+!,          Token::Bang
+|,          Token::Pipe
+||,         Token::Or
+&,          Token::Ampersand
+&&,         Token::And
+continue,   Token::Continue
+break,      Token::Break
+return,     Token::Return
+throw,      Token::Throw
+try,        Token::Try
+catch,      Token::Catch
++=,         Token::PlusAssign
+-=,         Token::MinusAssign
+*=,         Token::MultiplyAssign
+/=,         Token::DivideAssign
+<<=,        Token::LeftShiftAssign
+>>=,        Token::RightShiftAssign
+&=,         Token::AndAssign
+|=,         Token::OrAssign
+^=,         Token::XOrAssign
+<<,         Token::LeftShift
+>>,         Token::RightShift
+^,          Token::XOr
+"%",        Token::Modulo
+"%=",       Token::ModuloAssign
+**,         Token::PowerOf
+**=,        Token::PowerOfAssign
+fn,         Token::Fn
+private,    Token::Private
+import,     Token::Import
+export,     Token::Export
+as,         Token::As
