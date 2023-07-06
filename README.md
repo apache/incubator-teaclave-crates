@@ -19,5 +19,7 @@ Below list the crates:
 - [rustface](https://github.com/atomashpolskiy/rustface/tree/93c97ed7d0fa1cc3553f5483d865292cc37ceb98)
 - [rustls](https://github.com/rustls/rustls/tree/92600efb4f6cc25bfe0c133b0b922d915ed826e3)
 - [rustls-0.19.1](https://github.com/rustls/rustls/tree/3c390ef7c459cc1ef2504bd9d1fefdcb7eea1c20)
+- [rustls-0.21.2](https://github.com/rustls/rustls/tree/5053fde25bb0fde5715a95601a62c8fae626600e)
 - [rusty-machine](https://github.com/AtheMathmo/rusty-machine/tree/e7cc57fc5e0f384aeb19169336deb5f66655c76a)
 - [tantivy](https://github.com/quickwit-oss/tantivy/tree/6761237ec71b4e25ee4b5661e794b4755c6c5e56)
+- [tonic](https://github.com/hyperium/tonic/tree/ae7580160431cd25c1eecda4c85014ef6ce8d93f)
