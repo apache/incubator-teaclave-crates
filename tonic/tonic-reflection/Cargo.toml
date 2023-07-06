@@ -1,0 +1,31 @@
+[package]
+authors = [
+  "James Nugent <james@jen20.com>",
+  "Samani G. Gikandi <samani@gojulas.com>",
+]
+categories = ["network-programming", "asynchronous"]
+description = """
+Server Reflection module of `tonic` gRPC implementation.
+"""
+edition = "2021"
+homepage = "https://github.com/hyperium/tonic"
+documentation = "https://docs.rs/tonic-reflection/0.9.2"
+keywords = ["rpc", "grpc", "async", "reflection"]
+license = "MIT"
+name = "tonic-reflection"
+readme = "README.md"
+repository = "https://github.com/hyperium/tonic"
+version = "0.9.2"
+
+[dependencies]
+prost = "0.11"
+prost-types = "0.11"
+tokio = {version = "1.0", features = ["sync", "rt"]}
+tokio-stream = {version = "0.1", features = ["net"]}
+tonic = { version = "0.9", path = "../tonic", default-features = false, features = ["codegen", "prost"] }
+
+[dev-dependencies]
+tonic = { version = "0.9", path = "../tonic", default-features = false, features = ["transport"] }
+tonic-build = { version = "0.9", path = "../tonic-build", default-features = false, features = ["prost", "cleanup-markdown"] }
+futures = "0.3"
+futures-util = "0.3"
