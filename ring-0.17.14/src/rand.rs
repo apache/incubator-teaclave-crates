@@ -121,7 +121,7 @@ impl crate::sealed::Sealed for SystemRandom {}
 // Use the `getrandom` crate whenever it is using the environment's (operating
 // system's) CSPRNG. Avoid using it on targets where it uses the `rdrand`
 // implementation.
-#[cfg(any(
+#[cfg(all(not(target_os = "optee"), any(
     all(feature = "less-safe-getrandom-custom-or-rdrand", target_os = "none"),
     all(feature = "less-safe-getrandom-espidf", target_os = "espidf"),
     target_os = "aix",
@@ -158,10 +158,19 @@ impl crate::sealed::Sealed for SystemRandom {}
             all(target_os = "unknown", feature = "wasm32_unknown_unknown_js")
         )
     ),
-))]
+)))]
 impl sealed::SecureRandom for SystemRandom {
     #[inline(always)]
     fn fill_impl(&self, dest: &mut [u8]) -> Result<(), error::Unspecified> {
         getrandom::getrandom(dest).map_err(|_| error::Unspecified)
+    }
+}
+
+#[cfg(target_os = "optee")]
+impl sealed::SecureRandom for SystemRandom {
+    #[inline(always)]
+    fn fill_impl(&self, dest: &mut [u8]) -> Result<(), error::Unspecified> {
+        optee_utee::Random::generate(dest);
+        Ok(())
     }
 }

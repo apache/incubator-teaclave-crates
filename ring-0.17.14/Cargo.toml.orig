@@ -159,8 +159,10 @@ name = "ring"
 
 [dependencies]
 cfg-if = { version = "1.0.0", default-features = false }
-getrandom = { version = "0.2.10" }
 untrusted = { version = "0.9" }
+
+[target.'cfg(not(target_os = "optee"))'.dependencies]
+getrandom = { version = "0.2.10" }
 
 [target.'cfg(all(any(all(target_arch = "aarch64", target_endian = "little"), all(target_arch = "arm", target_endian = "little")), any(target_os = "android", target_os = "linux")))'.dependencies]
 libc = { version = "0.2.148", default-features = false }
@@ -170,6 +172,9 @@ libc = { version = "0.2.155", default-features = false }
 
 [target.'cfg(all(all(target_arch = "aarch64", target_endian = "little"), target_os = "windows"))'.dependencies]
 windows-sys = { version = "0.52", features = ["Win32_Foundation", "Win32_System_Threading"] }
+
+[target.'cfg(target_os="optee")'.dependencies]
+optee-utee = { version = "0.4.0" }
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dev-dependencies]
 wasm-bindgen-test = { version = "0.3.37", default-features = false, features = ["std"] }
